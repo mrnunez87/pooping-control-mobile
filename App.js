@@ -286,20 +286,28 @@ export default function App() {
         <Text style={styles.title}>💩 Pooping Control</Text>
         <Text style={styles.subtitle}>Track your daily pooping habits</Text>
         
-        {/* Legend */}
-        <View style={styles.legend}>
-          <View style={styles.legendItem}>
-            <Text style={styles.poopIndicator}>✓</Text>
-            <Text style={styles.legendText}>Successful poops</Text>
+        {/* Legend and Stats Button */}
+        <View style={styles.legendContainer}>
+          <View style={styles.legend}>
+            <View style={styles.legendItem}>
+              <Text style={styles.poopIndicator}>✓</Text>
+              <Text style={styles.legendText}>Successful poops</Text>
+            </View>
+            <View style={styles.legendItem}>
+              <Text style={styles.accidentIndicator}>💩</Text>
+              <Text style={styles.legendText}>Accidents</Text>
+            </View>
+            <View style={styles.legendItem}>
+              <Text style={styles.failedIndicator}>✗</Text>
+              <Text style={styles.legendText}>Failed attempts</Text>
+            </View>
           </View>
-          <View style={styles.legendItem}>
-            <Text style={styles.accidentIndicator}>💩</Text>
-            <Text style={styles.legendText}>Accidents</Text>
-          </View>
-          <View style={styles.legendItem}>
-            <Text style={styles.failedIndicator}>✗</Text>
-            <Text style={styles.legendText}>Failed attempts</Text>
-          </View>
+          <TouchableOpacity 
+            style={styles.statsButton}
+            onPress={() => setShowStatsModal(true)}
+          >
+            <Text style={styles.statsButtonText}>📊</Text>
+          </TouchableOpacity>
         </View>
       </View>
 
@@ -367,14 +375,6 @@ export default function App() {
           }}
         />
       </View>
-
-      {/* Stats Button */}
-      <TouchableOpacity 
-        style={styles.statsButton}
-        onPress={() => setShowStatsModal(true)}
-      >
-        <Text style={styles.statsButtonText}>📊</Text>
-      </TouchableOpacity>
 
       {/* Modal */}
       <Modal
@@ -669,10 +669,16 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 20,
   },
+  legendContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
   legend: {
     flexDirection: 'row',
     justifyContent: 'space-around',
     flexWrap: 'wrap',
+    flex: 1,
   },
   legendItem: {
     flexDirection: 'row',
@@ -849,23 +855,21 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   statsButton: {
-    position: 'absolute',
-    bottom: 20,
-    left: 20,
-    width: 60,
-    height: 60,
-    borderRadius: 30,
+    width: 50,
+    height: 50,
+    borderRadius: 25,
     backgroundColor: '#667eea',
     justifyContent: 'center',
     alignItems: 'center',
-    elevation: 5,
+    elevation: 3,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+    marginLeft: 10,
   },
   statsButtonText: {
-    fontSize: 24,
+    fontSize: 20,
     color: '#ffffff',
   },
   statsModalOverlay: {
