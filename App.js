@@ -7,7 +7,8 @@ import {
   Modal, 
   ScrollView,
   SafeAreaView,
-  Alert
+  Alert,
+  Image
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -521,9 +522,18 @@ export default function App() {
         transparent={true}
         animationType="fade"
         onRequestClose={() => setShowChartModal(false)}
+        statusBarTranslucent={true}
       >
-        <View style={styles.chartModalOverlay}>
-          <View style={styles.chartModalContent}>
+        <TouchableOpacity 
+          style={styles.chartModalOverlay}
+          activeOpacity={1}
+          onPress={() => setShowChartModal(false)}
+        >
+          <TouchableOpacity 
+            style={styles.chartModalContent}
+            activeOpacity={1}
+            onPress={() => {}}
+          >
             <View style={styles.chartModalHeader}>
               <Text style={styles.chartModalTitle}>Bristol Stool Chart</Text>
               <TouchableOpacity 
@@ -533,43 +543,20 @@ export default function App() {
                 <Text style={styles.chartCloseButtonText}>×</Text>
               </TouchableOpacity>
             </View>
-            <ScrollView style={styles.chartModalBody}>
-              <Text style={styles.chartDescription}>
-                The Bristol Stool Chart helps categorize stool into 7 types:
-              </Text>
-              <View style={styles.chartTypes}>
-                <View style={styles.chartType}>
-                  <Text style={styles.chartTypeNumber}>Type 1:</Text>
-                  <Text style={styles.chartTypeDesc}>Hard lumps or small pebbles</Text>
-                </View>
-                <View style={styles.chartType}>
-                  <Text style={styles.chartTypeNumber}>Type 2:</Text>
-                  <Text style={styles.chartTypeDesc}>Lumpy, hard, and sausage shaped</Text>
-                </View>
-                <View style={styles.chartType}>
-                  <Text style={styles.chartTypeNumber}>Type 3:</Text>
-                  <Text style={styles.chartTypeDesc}>Sausage shaped with cracks along the surface</Text>
-                </View>
-                <View style={styles.chartType}>
-                  <Text style={styles.chartTypeNumber}>Type 4:</Text>
-                  <Text style={styles.chartTypeDesc}>Resembles a thin sausage or snake</Text>
-                </View>
-                <View style={styles.chartType}>
-                  <Text style={styles.chartTypeNumber}>Type 5:</Text>
-                  <Text style={styles.chartTypeDesc}>Soft blobs with clear edges</Text>
-                </View>
-                <View style={styles.chartType}>
-                  <Text style={styles.chartTypeNumber}>Type 6:</Text>
-                  <Text style={styles.chartTypeDesc}>Mushy and fluffy with ragged edges</Text>
-                </View>
-                <View style={styles.chartType}>
-                  <Text style={styles.chartTypeNumber}>Type 7:</Text>
-                  <Text style={styles.chartTypeDesc}>Entirely liquid</Text>
-                </View>
-              </View>
+            <ScrollView style={styles.chartModalBody} showsVerticalScrollIndicator={false}>
+              <Image
+                source={{
+                  uri: 'https://www.everydayhealth.com/images/stool-chart.png'
+                }}
+                style={styles.bristolChartImage}
+                resizeMode="contain"
+                onError={() => {
+                  console.log('Image failed to load, showing fallback text');
+                }}
+              />
             </ScrollView>
-          </View>
-        </View>
+          </TouchableOpacity>
+        </TouchableOpacity>
       </Modal>
 
       {/* Statistics Modal */}
@@ -1027,7 +1014,8 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     borderRadius: 15,
     width: '100%',
-    maxHeight: '80%',
+    maxHeight: '90%',
+    maxWidth: '95%',
   },
   chartModalHeader: {
     flexDirection: 'row',
@@ -1055,34 +1043,11 @@ const styles = StyleSheet.create({
     color: '#666',
   },
   chartModalBody: {
-    padding: 20,
+    padding: 10,
   },
-  chartDescription: {
-    fontSize: 14,
-    color: '#4a5568',
-    marginBottom: 15,
-    textAlign: 'center',
-  },
-  chartTypes: {
-    gap: 10,
-  },
-  chartType: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    backgroundColor: '#f7fafc',
-    borderRadius: 8,
-  },
-  chartTypeNumber: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    color: '#667eea',
-    minWidth: 60,
-  },
-  chartTypeDesc: {
-    fontSize: 14,
-    color: '#4a5568',
-    flex: 1,
+  bristolChartImage: {
+    width: '100%',
+    height: 400,
+    borderRadius: 10,
   },
 });
