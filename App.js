@@ -30,7 +30,6 @@ export default function App() {
   const [showChartModal, setShowChartModal] = useState(false);
   const [showStatsModal, setShowStatsModal] = useState(false);
   const [imageLoadError, setImageLoadError] = useState(false);
-  const [imageLoaded, setImageLoaded] = useState(false);
 
   // Load entries from AsyncStorage
   useEffect(() => {
@@ -104,12 +103,6 @@ export default function App() {
     }));
   };
 
-  const openChartModal = () => {
-    console.log('Info button pressed - opening chart modal');
-    setImageLoadError(false);
-    setImageLoaded(false);
-    setShowChartModal(true);
-  };
 
   const saveEmojiEntries = async () => {
     if (!modalDate) return;
@@ -174,6 +167,7 @@ export default function App() {
     let poopCount = 0;
     let accidentCount = 0;
     let failedCount = 0;
+    let bristolType = null;
     
     dayEntries.forEach(entry => {
       if (entry.type === 'Accident') {
@@ -183,10 +177,13 @@ export default function App() {
       } else if (entry.type === 'Normal') {
         poopCount++;
       }
+      if (entry.bristolType && entry.bristolType !== null) {
+        bristolType = entry.bristolType;
+      }
     });
     
-    console.log(`Date ${dateStr}: poop=${poopCount}, accident=${accidentCount}, failed=${failedCount}`);
-    return { poopCount, accidentCount, failedCount };
+    console.log(`Date ${dateStr}: poop=${poopCount}, accident=${accidentCount}, failed=${failedCount}, bristol=${bristolType}`);
+    return { poopCount, accidentCount, failedCount, bristolType };
   };
 
   const getMarkedDates = () => {
@@ -200,7 +197,7 @@ export default function App() {
     
     // Mark dates with entries
     Object.keys(entries).forEach(dateStr => {
-      const { poopCount, accidentCount, failedCount } = getDateIndicators(dateStr);
+      const { poopCount, accidentCount, failedCount, bristolType } = getDateIndicators(dateStr);
       const totalEntries = poopCount + accidentCount + failedCount;
       
       if (totalEntries > 0) {
@@ -220,7 +217,19 @@ export default function App() {
         markedDates[dateStr] = {
           ...markedDates[dateStr],
           dots: dots,
-          marked: true
+          marked: true,
+          customStyles: bristolType ? {
+            container: {
+              backgroundColor: '#f8f9fa',
+              borderWidth: 1,
+              borderColor: '#e9ecef',
+            },
+            text: {
+              color: '#8b5cf6', // Purple color for Bristol type
+              fontWeight: 'bold',
+              fontSize: 10,
+            }
+          } : undefined
         };
       }
     });
@@ -348,7 +357,7 @@ export default function App() {
             textDayHeaderFontSize: 13
           }}
           dayComponent={({ date, state }) => {
-            const { poopCount, accidentCount, failedCount } = getDateIndicators(date.dateString);
+            const { poopCount, accidentCount, failedCount, bristolType } = getDateIndicators(date.dateString);
             const hasEntries = poopCount > 0 || accidentCount > 0 || failedCount > 0;
             
             return (
@@ -367,6 +376,11 @@ export default function App() {
                 ]}>
                   {date.day}
                 </Text>
+                {bristolType && (
+                  <Text style={styles.bristolTypeText}>
+                    {bristolType}
+                  </Text>
+                )}
                 {hasEntries && (
                   <View style={styles.emojiContainer}>
                     {poopCount > 0 && (
@@ -480,20 +494,12 @@ export default function App() {
                   <Text style={styles.typeLabel}>Bristol Stool Type</Text>
               <TouchableOpacity 
                 style={styles.infoButton}
-                onPress={openChartModal}
-                onPressIn={() => console.log('Info button pressed (onPressIn)')}
+                onPress={() => {
+                  console.log('Info button pressed');
+                  setShowChartModal(true);
+                }}
               >
                     <Text style={styles.infoButtonText}>ℹ️</Text>
-                  </TouchableOpacity>
-                  {/* Test button for debugging */}
-                  <TouchableOpacity 
-                    style={[styles.infoButton, { backgroundColor: 'red', marginLeft: 10 }]}
-                    onPress={() => {
-                      console.log('Test button pressed');
-                      setShowChartModal(true);
-                    }}
-                  >
-                    <Text style={styles.infoButtonText}>📊</Text>
                   </TouchableOpacity>
                 </View>
                 <View style={styles.typeButtons}>
@@ -568,22 +574,18 @@ export default function App() {
               </TouchableOpacity>
             </View>
             <ScrollView style={styles.chartModalBody} showsVerticalScrollIndicator={false}>
-              {console.log('Chart modal - imageLoadError:', imageLoadError, 'imageLoaded:', imageLoaded)}
+              {console.log('Chart modal - imageLoadError:', imageLoadError)}
               {!imageLoadError ? (
                 <Image
                   source={{ uri: 'https://raw.githubusercontent.com/mrnunez87/pooping-control-mobile/main/assets/chart.png' }}
                   style={styles.bristolChartImage}
                   resizeMode="contain"
                   onError={(error) => {
-                    console.log('Image failed to load from URL, trying local:', error);
-                    // Try local require as fallback
-                    setTimeout(() => {
-                      setImageLoadError(true);
-                    }, 1000);
+                    console.log('Image failed to load, showing fallback text:', error);
+                    setImageLoadError(true);
                   }}
                   onLoad={() => {
-                    console.log('Image loaded successfully from URL');
-                    setImageLoaded(true);
+                    console.log('Image loaded successfully');
                   }}
                 />
               ) : (
@@ -777,6 +779,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#4a5568',
     marginBottom: 2,
+  },
+  bristolTypeText: {
+    fontSize: 10,
+    color: '#8b5cf6',
+    fontWeight: 'bold',
+    marginTop: -2,
   },
   emojiContainer: {
     flexDirection: 'row',
