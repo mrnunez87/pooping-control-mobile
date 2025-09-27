@@ -27,6 +27,7 @@ export default function App() {
     type: null
   });
   const [showChartModal, setShowChartModal] = useState(false);
+  const [showStatsModal, setShowStatsModal] = useState(false);
 
   // Load entries from AsyncStorage
   useEffect(() => {
@@ -367,55 +368,13 @@ export default function App() {
         />
       </View>
 
-      {/* Statistics Section */}
-      <View style={styles.statisticsContainer}>
-        <Text style={styles.statisticsTitle}>📊 Statistics</Text>
-        {(() => {
-          const stats = getStatistics();
-          if (stats.totalDays === 0) {
-            return (
-              <Text style={styles.noDataText}>No data logged yet. Start tracking your habits!</Text>
-            );
-          }
-          
-          return (
-            <View style={styles.statisticsGrid}>
-              {/* Successful Poops */}
-              <View style={styles.statisticCard}>
-                <View style={styles.statisticHeader}>
-                  <Text style={styles.poopIndicator}>✓</Text>
-                  <Text style={styles.statisticLabel}>Successful</Text>
-                </View>
-                <Text style={styles.percentageText}>{stats.successfulPercentage}%</Text>
-                <Text style={styles.averageText}>Avg: {stats.avgSuccessfulPerDay}/day</Text>
-                <Text style={styles.totalText}>Total: {stats.totalSuccessful}</Text>
-              </View>
-
-              {/* Accidents */}
-              <View style={styles.statisticCard}>
-                <View style={styles.statisticHeader}>
-                  <Text style={styles.accidentIndicator}>💩</Text>
-                  <Text style={styles.statisticLabel}>Accidents</Text>
-                </View>
-                <Text style={styles.percentageText}>{stats.accidentPercentage}%</Text>
-                <Text style={styles.averageText}>Avg: {stats.avgAccidentsPerDay}/day</Text>
-                <Text style={styles.totalText}>Total: {stats.totalAccidents}</Text>
-              </View>
-
-              {/* Failed Attempts */}
-              <View style={styles.statisticCard}>
-                <View style={styles.statisticHeader}>
-                  <Text style={styles.failedIndicator}>✗</Text>
-                  <Text style={styles.statisticLabel}>Failed</Text>
-                </View>
-                <Text style={styles.percentageText}>{stats.failedPercentage}%</Text>
-                <Text style={styles.averageText}>Avg: {stats.avgFailedPerDay}/day</Text>
-                <Text style={styles.totalText}>Total: {stats.totalFailed}</Text>
-              </View>
-            </View>
-          );
-        })()}
-      </View>
+      {/* Stats Button */}
+      <TouchableOpacity 
+        style={styles.statsButton}
+        onPress={() => setShowStatsModal(true)}
+      >
+        <Text style={styles.statsButtonText}>📊</Text>
+      </TouchableOpacity>
 
       {/* Modal */}
       <Modal
@@ -612,6 +571,75 @@ export default function App() {
           </View>
         </View>
       </Modal>
+
+      {/* Statistics Modal */}
+      <Modal
+        visible={showStatsModal}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setShowStatsModal(false)}
+      >
+        <View style={styles.statsModalOverlay}>
+          <View style={styles.statsModalContent}>
+            <View style={styles.statsModalHeader}>
+              <Text style={styles.statsModalTitle}>📊 Statistics</Text>
+              <TouchableOpacity 
+                style={styles.statsCloseButton}
+                onPress={() => setShowStatsModal(false)}
+              >
+                <Text style={styles.statsCloseButtonText}>×</Text>
+              </TouchableOpacity>
+            </View>
+            <ScrollView style={styles.statsModalBody}>
+              {(() => {
+                const stats = getStatistics();
+                if (stats.totalDays === 0) {
+                  return (
+                    <Text style={styles.noDataText}>No data logged yet. Start tracking your habits!</Text>
+                  );
+                }
+                
+                return (
+                  <View style={styles.statisticsGrid}>
+                    {/* Successful Poops */}
+                    <View style={styles.statisticCard}>
+                      <View style={styles.statisticHeader}>
+                        <Text style={styles.poopIndicator}>✓</Text>
+                        <Text style={styles.statisticLabel}>Successful</Text>
+                      </View>
+                      <Text style={styles.percentageText}>{stats.successfulPercentage}%</Text>
+                      <Text style={styles.averageText}>Avg: {stats.avgSuccessfulPerDay}/day</Text>
+                      <Text style={styles.totalText}>Total: {stats.totalSuccessful}</Text>
+                    </View>
+
+                    {/* Accidents */}
+                    <View style={styles.statisticCard}>
+                      <View style={styles.statisticHeader}>
+                        <Text style={styles.accidentIndicator}>💩</Text>
+                        <Text style={styles.statisticLabel}>Accidents</Text>
+                      </View>
+                      <Text style={styles.percentageText}>{stats.accidentPercentage}%</Text>
+                      <Text style={styles.averageText}>Avg: {stats.avgAccidentsPerDay}/day</Text>
+                      <Text style={styles.totalText}>Total: {stats.totalAccidents}</Text>
+                    </View>
+
+                    {/* Failed Attempts */}
+                    <View style={styles.statisticCard}>
+                      <View style={styles.statisticHeader}>
+                        <Text style={styles.failedIndicator}>✗</Text>
+                        <Text style={styles.statisticLabel}>Failed</Text>
+                      </View>
+                      <Text style={styles.percentageText}>{stats.failedPercentage}%</Text>
+                      <Text style={styles.averageText}>Avg: {stats.avgFailedPerDay}/day</Text>
+                      <Text style={styles.totalText}>Total: {stats.totalFailed}</Text>
+                    </View>
+                  </View>
+                );
+              })()}
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -659,7 +687,6 @@ const styles = StyleSheet.create({
   calendarContainer: {
     flex: 1,
     padding: 10,
-    maxHeight: '60%',
   },
   calendarDay: {
     height: 60,
@@ -821,21 +848,64 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
   },
-  statisticsContainer: {
-    backgroundColor: '#ffffff',
-    margin: 5,
-    padding: 10,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#e2e8f0',
-    maxHeight: '35%',
+  statsButton: {
+    position: 'absolute',
+    bottom: 20,
+    left: 20,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: '#667eea',
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
   },
-  statisticsTitle: {
-    fontSize: 16,
+  statsButtonText: {
+    fontSize: 24,
+    color: '#ffffff',
+  },
+  statsModalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'flex-end',
+  },
+  statsModalContent: {
+    backgroundColor: '#ffffff',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    maxHeight: '70%',
+  },
+  statsModalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: '#e2e8f0',
+  },
+  statsModalTitle: {
+    fontSize: 18,
     fontWeight: 'bold',
     color: '#4a5568',
-    textAlign: 'center',
-    marginBottom: 10,
+  },
+  statsCloseButton: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    backgroundColor: '#f7fafc',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  statsCloseButtonText: {
+    fontSize: 20,
+    color: '#666',
+  },
+  statsModalBody: {
+    padding: 20,
   },
   noDataText: {
     fontSize: 14,
