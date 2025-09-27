@@ -35,7 +35,11 @@ export default function App() {
     try {
       const storedEntries = await AsyncStorage.getItem(STORAGE_KEY);
       if (storedEntries) {
-        setEntries(JSON.parse(storedEntries));
+        const parsedEntries = JSON.parse(storedEntries);
+        setEntries(parsedEntries);
+        console.log('Loaded entries:', parsedEntries);
+      } else {
+        console.log('No stored entries found');
       }
     } catch (error) {
       console.error('Error loading entries:', error);
@@ -46,6 +50,7 @@ export default function App() {
     try {
       await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(newEntries));
       setEntries(newEntries);
+      console.log('Saved entries:', newEntries);
     } catch (error) {
       console.error('Error saving entries:', error);
     }
@@ -157,6 +162,7 @@ export default function App() {
       }
     });
     
+    console.log(`Date ${dateStr}: poop=${poopCount}, accident=${accidentCount}, failed=${failedCount}`);
     return { poopCount, accidentCount, failedCount };
   };
 
@@ -167,15 +173,15 @@ export default function App() {
       <View style={styles.calendarDay}>
         <Text style={styles.dayText}>{day.day}</Text>
         <View style={styles.emojiContainer}>
-          {Array(poopCount).fill(0).map((_, i) => (
-            <Text key={`poop-${i}`} style={styles.poopIndicator}>✓</Text>
-          ))}
-          {Array(accidentCount).fill(0).map((_, i) => (
-            <Text key={`accident-${i}`} style={styles.accidentIndicator}>💩</Text>
-          ))}
-          {Array(failedCount).fill(0).map((_, i) => (
-            <Text key={`failed-${i}`} style={styles.failedIndicator}>✗</Text>
-          ))}
+          {poopCount > 0 && (
+            <Text style={styles.poopIndicator}>✓{poopCount > 1 ? poopCount : ''}</Text>
+          )}
+          {accidentCount > 0 && (
+            <Text style={styles.accidentIndicator}>💩{accidentCount > 1 ? accidentCount : ''}</Text>
+          )}
+          {failedCount > 0 && (
+            <Text style={styles.failedIndicator}>✗{failedCount > 1 ? failedCount : ''}</Text>
+          )}
         </View>
       </View>
     );
@@ -235,7 +241,38 @@ export default function App() {
             textMonthFontSize: 16,
             textDayHeaderFontSize: 13
           }}
-          renderDay={(day) => renderCalendarDay(day)}
+          dayComponent={({ date, state }) => {
+            const { poopCount, accidentCount, failedCount } = getDateIndicators(date.dateString);
+            return (
+              <TouchableOpacity 
+                style={[
+                  styles.calendarDay,
+                  state === 'selected' && styles.selectedDay,
+                  state === 'today' && styles.todayDay
+                ]}
+                onPress={() => handleDatePress(date)}
+              >
+                <Text style={[
+                  styles.dayText,
+                  state === 'selected' && styles.selectedDayText,
+                  state === 'today' && styles.todayDayText
+                ]}>
+                  {date.day}
+                </Text>
+                <View style={styles.emojiContainer}>
+                  {poopCount > 0 && (
+                    <Text style={styles.poopIndicator}>✓{poopCount > 1 ? poopCount : ''}</Text>
+                  )}
+                  {accidentCount > 0 && (
+                    <Text style={styles.accidentIndicator}>💩{accidentCount > 1 ? accidentCount : ''}</Text>
+                  )}
+                  {failedCount > 0 && (
+                    <Text style={styles.failedIndicator}>✗{failedCount > 1 ? failedCount : ''}</Text>
+                  )}
+                </View>
+              </TouchableOpacity>
+            );
+          }}
         />
       </View>
 
@@ -395,8 +432,25 @@ const styles = StyleSheet.create({
   },
   calendarDay: {
     height: 60,
+    width: 40,
     justifyContent: 'center',
     alignItems: 'center',
+    margin: 2,
+  },
+  selectedDay: {
+    backgroundColor: '#667eea',
+    borderRadius: 8,
+  },
+  todayDay: {
+    backgroundColor: '#e6f3ff',
+    borderRadius: 8,
+  },
+  selectedDayText: {
+    color: '#ffffff',
+  },
+  todayDayText: {
+    color: '#667eea',
+    fontWeight: 'bold',
   },
   dayText: {
     fontSize: 16,
@@ -411,17 +465,17 @@ const styles = StyleSheet.create({
   poopIndicator: {
     color: '#48bb78',
     fontWeight: 'bold',
-    fontSize: 10,
+    fontSize: 12,
     marginHorizontal: 1,
   },
   accidentIndicator: {
-    fontSize: 10,
+    fontSize: 12,
     marginHorizontal: 1,
   },
   failedIndicator: {
     color: '#e53e3e',
     fontWeight: 'bold',
-    fontSize: 10,
+    fontSize: 12,
     marginHorizontal: 1,
   },
   modalOverlay: {
