@@ -105,6 +105,7 @@ export default function App() {
   };
 
   const openChartModal = () => {
+    console.log('Info button pressed - opening chart modal');
     setImageLoadError(false);
     setImageLoaded(false);
     setShowChartModal(true);
@@ -480,8 +481,19 @@ export default function App() {
               <TouchableOpacity 
                 style={styles.infoButton}
                 onPress={openChartModal}
+                onPressIn={() => console.log('Info button pressed (onPressIn)')}
               >
                     <Text style={styles.infoButtonText}>ℹ️</Text>
+                  </TouchableOpacity>
+                  {/* Test button for debugging */}
+                  <TouchableOpacity 
+                    style={[styles.infoButton, { backgroundColor: 'red', marginLeft: 10 }]}
+                    onPress={() => {
+                      console.log('Test button pressed');
+                      setShowChartModal(true);
+                    }}
+                  >
+                    <Text style={styles.infoButtonText}>📊</Text>
                   </TouchableOpacity>
                 </View>
                 <View style={styles.typeButtons}>
@@ -525,11 +537,15 @@ export default function App() {
       </Modal>
 
       {/* Bristol Stool Chart Modal */}
+      {console.log('Rendering chart modal - showChartModal:', showChartModal)}
       <Modal
         visible={showChartModal}
         transparent={true}
         animationType="fade"
-        onRequestClose={() => setShowChartModal(false)}
+        onRequestClose={() => {
+          console.log('Modal onRequestClose called');
+          setShowChartModal(false);
+        }}
         statusBarTranslucent={true}
       >
         <TouchableOpacity 
@@ -555,15 +571,18 @@ export default function App() {
               {console.log('Chart modal - imageLoadError:', imageLoadError, 'imageLoaded:', imageLoaded)}
               {!imageLoadError ? (
                 <Image
-                  source={require('./assets/chart.png')}
+                  source={{ uri: 'https://raw.githubusercontent.com/mrnunez87/pooping-control-mobile/main/assets/chart.png' }}
                   style={styles.bristolChartImage}
                   resizeMode="contain"
-                  onError={() => {
-                    console.log('Image failed to load, showing fallback text');
-                    setImageLoadError(true);
+                  onError={(error) => {
+                    console.log('Image failed to load from URL, trying local:', error);
+                    // Try local require as fallback
+                    setTimeout(() => {
+                      setImageLoadError(true);
+                    }, 1000);
                   }}
                   onLoad={() => {
-                    console.log('Image loaded successfully');
+                    console.log('Image loaded successfully from URL');
                     setImageLoaded(true);
                   }}
                 />
