@@ -27,9 +27,13 @@ jobs:
       uses: expo/expo-github-action@v8
       with:
         expo-version: latest
+        eas-version: latest
+        token: ${{ secrets.EXPO_TOKEN }}
         
-    - name: Start Expo development server
-      run: npx expo start --no-dev --minify
+    - name: Build iOS for TestFlight
+      run: eas build --platform ios --profile preview --non-interactive
+      env:
+        EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
       
     - name: Build web version
       run: npx expo export --platform web

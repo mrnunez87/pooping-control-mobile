@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Pooping Control",
-    "slug": "pooping-control-mobile",
+    "slug": "pooping-control",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
