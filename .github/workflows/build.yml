@@ -56,3 +56,6 @@ jobs:
       uses: actions/deploy-pages@v4
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
+        
+    - name: Publish EAS Update
+      run: npx eas update --branch main --message "Update from GitHub Actions"
