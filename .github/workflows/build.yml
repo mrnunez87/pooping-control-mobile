@@ -40,8 +40,12 @@ jobs:
     - name: Build web version
       run: npx expo export --platform web
       
+    - name: Upload Pages artifact
+      uses: actions/upload-pages-artifact@v3
+      with:
+        path: ./dist
+      
     - name: Deploy to GitHub Pages
       uses: actions/deploy-pages@v4
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
-        path: ./dist
