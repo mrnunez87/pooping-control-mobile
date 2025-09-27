@@ -7,9 +7,9 @@ import {
   Modal, 
   ScrollView,
   SafeAreaView,
-  Alert,
-  Image
+  Alert
 } from 'react-native';
+import { Image } from 'expo-image';
 import { StatusBar } from 'expo-status-bar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Calendar } from 'react-native-calendars';
@@ -586,23 +586,19 @@ export default function App() {
             </View>
             <ScrollView style={styles.chartModalBody} showsVerticalScrollIndicator={false}>
               {console.log('Chart modal - imageLoadError:', imageLoadError)}
-              {!imageLoadError ? (
-                <Image
-                  source={require('./assets/chart.png')}
-                  style={styles.bristolChartImage}
-                  resizeMode="contain"
-                  onError={(error) => {
-                    console.log('Local image failed to load, trying URL:', error);
-                    // Try URL as fallback
-                    setTimeout(() => {
-                      setImageLoadError(true);
-                    }, 1000);
-                  }}
-                  onLoad={() => {
-                    console.log('Local image loaded successfully');
-                  }}
-                />
-              ) : (
+              <Image
+                source={require('./assets/chart.png')}
+                style={styles.bristolChartImage}
+                contentFit="contain"
+                transition={200}
+                onError={(error) => {
+                  console.log('expo-image failed to load:', error);
+                }}
+                onLoad={() => {
+                  console.log('expo-image loaded successfully');
+                }}
+              />
+              {imageLoadError && (
                 <View style={styles.fallbackContent}>
                   <Text style={styles.fallbackTitle}>Bristol Stool Chart</Text>
                   <Text style={styles.fallbackDescription}>
@@ -1138,11 +1134,24 @@ const styles = StyleSheet.create({
   chartModalBody: {
     padding: 10,
   },
+  imageContainer: {
+    width: '100%',
+    height: 350,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   bristolChartImage: {
     width: '100%',
     height: 350,
     borderRadius: 10,
     alignSelf: 'center',
+  },
+  imageLoadingText: {
+    position: 'absolute',
+    bottom: 10,
+    fontSize: 12,
+    color: '#666',
+    fontStyle: 'italic',
   },
   fallbackContent: {
     padding: 10,
