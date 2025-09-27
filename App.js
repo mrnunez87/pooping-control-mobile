@@ -166,26 +166,45 @@ export default function App() {
     return { poopCount, accidentCount, failedCount };
   };
 
-  const renderCalendarDay = (day) => {
-    const { poopCount, accidentCount, failedCount } = getDateIndicators(day.dateString);
+  const getMarkedDates = () => {
+    const markedDates = {};
     
-    return (
-      <View style={styles.calendarDay}>
-        <Text style={styles.dayText}>{day.day}</Text>
-        <View style={styles.emojiContainer}>
-          {poopCount > 0 && (
-            <Text style={styles.poopIndicator}>✓{poopCount > 1 ? poopCount : ''}</Text>
-          )}
-          {accidentCount > 0 && (
-            <Text style={styles.accidentIndicator}>💩{accidentCount > 1 ? accidentCount : ''}</Text>
-          )}
-          {failedCount > 0 && (
-            <Text style={styles.failedIndicator}>✗{failedCount > 1 ? failedCount : ''}</Text>
-          )}
-        </View>
-      </View>
-    );
+    // Mark selected date
+    markedDates[selectedDate] = { 
+      selected: true, 
+      selectedColor: '#667eea' 
+    };
+    
+    // Mark dates with entries
+    Object.keys(entries).forEach(dateStr => {
+      const { poopCount, accidentCount, failedCount } = getDateIndicators(dateStr);
+      const totalEntries = poopCount + accidentCount + failedCount;
+      
+      if (totalEntries > 0) {
+        const dots = [];
+        
+        // Add dots for each type of entry
+        for (let i = 0; i < poopCount; i++) {
+          dots.push({ key: `poop-${i}`, color: '#48bb78' });
+        }
+        for (let i = 0; i < accidentCount; i++) {
+          dots.push({ key: `accident-${i}`, color: '#8B4513' });
+        }
+        for (let i = 0; i < failedCount; i++) {
+          dots.push({ key: `failed-${i}`, color: '#e53e3e' });
+        }
+        
+        markedDates[dateStr] = {
+          ...markedDates[dateStr],
+          dots: dots,
+          marked: true
+        };
+      }
+    });
+    
+    return markedDates;
   };
+
 
   return (
     <SafeAreaView style={styles.container}>
@@ -217,9 +236,7 @@ export default function App() {
       <View style={styles.calendarContainer}>
         <Calendar
           onDayPress={handleDatePress}
-          markedDates={{
-            [selectedDate]: { selected: true, selectedColor: '#667eea' }
-          }}
+          markedDates={getMarkedDates()}
           theme={{
             backgroundColor: '#ffffff',
             calendarBackground: '#ffffff',
@@ -240,38 +257,6 @@ export default function App() {
             textDayFontSize: 16,
             textMonthFontSize: 16,
             textDayHeaderFontSize: 13
-          }}
-          dayComponent={({ date, state }) => {
-            const { poopCount, accidentCount, failedCount } = getDateIndicators(date.dateString);
-            return (
-              <TouchableOpacity 
-                style={[
-                  styles.calendarDay,
-                  state === 'selected' && styles.selectedDay,
-                  state === 'today' && styles.todayDay
-                ]}
-                onPress={() => handleDatePress(date)}
-              >
-                <Text style={[
-                  styles.dayText,
-                  state === 'selected' && styles.selectedDayText,
-                  state === 'today' && styles.todayDayText
-                ]}>
-                  {date.day}
-                </Text>
-                <View style={styles.emojiContainer}>
-                  {poopCount > 0 && (
-                    <Text style={styles.poopIndicator}>✓{poopCount > 1 ? poopCount : ''}</Text>
-                  )}
-                  {accidentCount > 0 && (
-                    <Text style={styles.accidentIndicator}>💩{accidentCount > 1 ? accidentCount : ''}</Text>
-                  )}
-                  {failedCount > 0 && (
-                    <Text style={styles.failedIndicator}>✗{failedCount > 1 ? failedCount : ''}</Text>
-                  )}
-                </View>
-              </TouchableOpacity>
-            );
           }}
         />
       </View>
