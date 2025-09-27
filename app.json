@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "pooping-control-mobile",
+    "name": "Pooping Control",
     "slug": "pooping-control-mobile",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -13,17 +13,24 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.poopingcontrol.app"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "package": "com.poopingcontrol.app"
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "911906a6-e567-4013-8d3b-1d47c89ba72b"
+      }
     }
   }
 }
