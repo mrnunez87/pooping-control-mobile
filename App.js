@@ -30,6 +30,7 @@ export default function App() {
   const [showChartModal, setShowChartModal] = useState(false);
   const [showStatsModal, setShowStatsModal] = useState(false);
   const [imageLoadError, setImageLoadError] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState(false);
 
   // Load entries from AsyncStorage
   useEffect(() => {
@@ -101,6 +102,12 @@ export default function App() {
       ...prev,
       type: prev.type === type ? null : type
     }));
+  };
+
+  const openChartModal = () => {
+    setImageLoadError(false);
+    setImageLoaded(false);
+    setShowChartModal(true);
   };
 
   const saveEmojiEntries = async () => {
@@ -470,10 +477,10 @@ export default function App() {
               <View style={styles.typeSelectionContainer}>
                 <View style={styles.typeHeader}>
                   <Text style={styles.typeLabel}>Bristol Stool Type</Text>
-                  <TouchableOpacity 
-                    style={styles.infoButton}
-                    onPress={() => setShowChartModal(true)}
-                  >
+              <TouchableOpacity 
+                style={styles.infoButton}
+                onPress={openChartModal}
+              >
                     <Text style={styles.infoButtonText}>ℹ️</Text>
                   </TouchableOpacity>
                 </View>
@@ -545,6 +552,7 @@ export default function App() {
               </TouchableOpacity>
             </View>
             <ScrollView style={styles.chartModalBody} showsVerticalScrollIndicator={false}>
+              {console.log('Chart modal - imageLoadError:', imageLoadError, 'imageLoaded:', imageLoaded)}
               {!imageLoadError ? (
                 <Image
                   source={require('./assets/chart.png')}
@@ -553,6 +561,10 @@ export default function App() {
                   onError={() => {
                     console.log('Image failed to load, showing fallback text');
                     setImageLoadError(true);
+                  }}
+                  onLoad={() => {
+                    console.log('Image loaded successfully');
+                    setImageLoaded(true);
                   }}
                 />
               ) : (
@@ -1052,9 +1064,10 @@ const styles = StyleSheet.create({
   chartModalContent: {
     backgroundColor: 'white',
     borderRadius: 15,
-    width: '100%',
-    maxHeight: '90%',
+    width: '95%',
+    maxHeight: '85%',
     maxWidth: '95%',
+    alignSelf: 'center',
   },
   chartModalHeader: {
     flexDirection: 'row',
@@ -1086,8 +1099,9 @@ const styles = StyleSheet.create({
   },
   bristolChartImage: {
     width: '100%',
-    height: 400,
+    height: 350,
     borderRadius: 10,
+    alignSelf: 'center',
   },
   fallbackContent: {
     padding: 10,
