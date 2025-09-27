@@ -547,9 +547,7 @@ export default function App() {
             <ScrollView style={styles.chartModalBody} showsVerticalScrollIndicator={false}>
               {!imageLoadError ? (
                 <Image
-                  source={{
-                    uri: 'https://www.verywellhealth.com/thmb/4qN7mJjO1eK8JjO1eK8JjO1eK8=/1500x0/filters:no_upscale():max_bytes(1500000):strip_icc()/bristol-stool-chart-5b7b6b6c46e0fb002c8b8b8b.png'
-                  }}
+                  source={require('./assets/chart.png')}
                   style={styles.bristolChartImage}
                   resizeMode="contain"
                   onError={() => {
