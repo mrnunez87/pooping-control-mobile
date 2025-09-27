@@ -316,6 +316,42 @@ export default function App() {
             textMonthFontSize: 16,
             textDayHeaderFontSize: 13
           }}
+          dayComponent={({ date, state }) => {
+            const { poopCount, accidentCount, failedCount } = getDateIndicators(date.dateString);
+            const hasEntries = poopCount > 0 || accidentCount > 0 || failedCount > 0;
+            
+            return (
+              <TouchableOpacity 
+                style={[
+                  styles.calendarDay,
+                  state === 'selected' && styles.selectedDay,
+                  state === 'today' && styles.todayDay
+                ]}
+                onPress={() => handleDatePress(date)}
+              >
+                <Text style={[
+                  styles.dayText,
+                  state === 'selected' && styles.selectedDayText,
+                  state === 'today' && styles.todayDayText
+                ]}>
+                  {date.day}
+                </Text>
+                {hasEntries && (
+                  <View style={styles.emojiContainer}>
+                    {poopCount > 0 && (
+                      <Text style={styles.poopIndicator}>✓{poopCount > 1 ? poopCount : ''}</Text>
+                    )}
+                    {accidentCount > 0 && (
+                      <Text style={styles.accidentIndicator}>💩{accidentCount > 1 ? accidentCount : ''}</Text>
+                    )}
+                    {failedCount > 0 && (
+                      <Text style={styles.failedIndicator}>✗{failedCount > 1 ? failedCount : ''}</Text>
+                    )}
+                  </View>
+                )}
+              </TouchableOpacity>
+            );
+          }}
         />
       </View>
 
