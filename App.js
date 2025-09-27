@@ -205,6 +205,64 @@ export default function App() {
     return markedDates;
   };
 
+  const getStatistics = () => {
+    const allDates = Object.keys(entries);
+    const loggedDays = allDates.length;
+    
+    if (loggedDays === 0) {
+      return {
+        totalDays: 0,
+        successfulDays: 0,
+        accidentDays: 0,
+        failedDays: 0,
+        totalSuccessful: 0,
+        totalAccidents: 0,
+        totalFailed: 0,
+        successfulPercentage: 0,
+        accidentPercentage: 0,
+        failedPercentage: 0,
+        avgSuccessfulPerDay: 0,
+        avgAccidentsPerDay: 0,
+        avgFailedPerDay: 0
+      };
+    }
+    
+    let successfulDays = 0;
+    let accidentDays = 0;
+    let failedDays = 0;
+    let totalSuccessful = 0;
+    let totalAccidents = 0;
+    let totalFailed = 0;
+    
+    allDates.forEach(dateStr => {
+      const { poopCount, accidentCount, failedCount } = getDateIndicators(dateStr);
+      
+      if (poopCount > 0) successfulDays++;
+      if (accidentCount > 0) accidentDays++;
+      if (failedCount > 0) failedDays++;
+      
+      totalSuccessful += poopCount;
+      totalAccidents += accidentCount;
+      totalFailed += failedCount;
+    });
+    
+    return {
+      totalDays: loggedDays,
+      successfulDays,
+      accidentDays,
+      failedDays,
+      totalSuccessful,
+      totalAccidents,
+      totalFailed,
+      successfulPercentage: Math.round((successfulDays / loggedDays) * 100),
+      accidentPercentage: Math.round((accidentDays / loggedDays) * 100),
+      failedPercentage: Math.round((failedDays / loggedDays) * 100),
+      avgSuccessfulPerDay: loggedDays > 0 ? (totalSuccessful / loggedDays).toFixed(1) : 0,
+      avgAccidentsPerDay: loggedDays > 0 ? (totalAccidents / loggedDays).toFixed(1) : 0,
+      avgFailedPerDay: loggedDays > 0 ? (totalFailed / loggedDays).toFixed(1) : 0
+    };
+  };
+
 
   return (
     <SafeAreaView style={styles.container}>
@@ -259,6 +317,56 @@ export default function App() {
             textDayHeaderFontSize: 13
           }}
         />
+      </View>
+
+      {/* Statistics Section */}
+      <View style={styles.statisticsContainer}>
+        <Text style={styles.statisticsTitle}>📊 Statistics</Text>
+        {(() => {
+          const stats = getStatistics();
+          if (stats.totalDays === 0) {
+            return (
+              <Text style={styles.noDataText}>No data logged yet. Start tracking your habits!</Text>
+            );
+          }
+          
+          return (
+            <View style={styles.statisticsGrid}>
+              {/* Successful Poops */}
+              <View style={styles.statisticCard}>
+                <View style={styles.statisticHeader}>
+                  <Text style={styles.poopIndicator}>✓</Text>
+                  <Text style={styles.statisticLabel}>Successful</Text>
+                </View>
+                <Text style={styles.percentageText}>{stats.successfulPercentage}%</Text>
+                <Text style={styles.averageText}>Avg: {stats.avgSuccessfulPerDay}/day</Text>
+                <Text style={styles.totalText}>Total: {stats.totalSuccessful}</Text>
+              </View>
+
+              {/* Accidents */}
+              <View style={styles.statisticCard}>
+                <View style={styles.statisticHeader}>
+                  <Text style={styles.accidentIndicator}>💩</Text>
+                  <Text style={styles.statisticLabel}>Accidents</Text>
+                </View>
+                <Text style={styles.percentageText}>{stats.accidentPercentage}%</Text>
+                <Text style={styles.averageText}>Avg: {stats.avgAccidentsPerDay}/day</Text>
+                <Text style={styles.totalText}>Total: {stats.totalAccidents}</Text>
+              </View>
+
+              {/* Failed Attempts */}
+              <View style={styles.statisticCard}>
+                <View style={styles.statisticHeader}>
+                  <Text style={styles.failedIndicator}>✗</Text>
+                  <Text style={styles.statisticLabel}>Failed</Text>
+                </View>
+                <Text style={styles.percentageText}>{stats.failedPercentage}%</Text>
+                <Text style={styles.averageText}>Avg: {stats.avgFailedPerDay}/day</Text>
+                <Text style={styles.totalText}>Total: {stats.totalFailed}</Text>
+              </View>
+            </View>
+          );
+        })()}
       </View>
 
       {/* Modal */}
@@ -574,5 +682,68 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 16,
     fontWeight: '600',
+  },
+  statisticsContainer: {
+    backgroundColor: '#ffffff',
+    margin: 10,
+    padding: 15,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#e2e8f0',
+  },
+  statisticsTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#4a5568',
+    textAlign: 'center',
+    marginBottom: 15,
+  },
+  noDataText: {
+    fontSize: 14,
+    color: '#666',
+    textAlign: 'center',
+    fontStyle: 'italic',
+  },
+  statisticsGrid: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    flexWrap: 'wrap',
+  },
+  statisticCard: {
+    backgroundColor: '#f7fafc',
+    padding: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+    minWidth: 100,
+    marginBottom: 10,
+    borderWidth: 1,
+    borderColor: '#e2e8f0',
+  },
+  statisticHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  statisticLabel: {
+    fontSize: 12,
+    color: '#4a5568',
+    marginLeft: 5,
+    fontWeight: '600',
+  },
+  percentageText: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#4a5568',
+    marginBottom: 4,
+  },
+  averageText: {
+    fontSize: 11,
+    color: '#666',
+    marginBottom: 2,
+  },
+  totalText: {
+    fontSize: 11,
+    color: '#666',
+    fontWeight: '500',
   },
 });
