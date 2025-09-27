@@ -23,8 +23,10 @@ export default function App() {
   const [modalEntries, setModalEntries] = useState({
     successful: 0,
     accidents: 0,
-    failed: 0
+    failed: 0,
+    type: null
   });
+  const [showChartModal, setShowChartModal] = useState(false);
 
   // Load entries from AsyncStorage
   useEffect(() => {
@@ -80,7 +82,7 @@ export default function App() {
     });
     
     setModalDate(dateStr);
-    setModalEntries({ successful, accidents, failed });
+    setModalEntries({ successful, accidents, failed, type: null });
     setShowModal(true);
   };
 
@@ -88,6 +90,13 @@ export default function App() {
     setModalEntries(prev => ({
       ...prev,
       [type]: Math.max(0, prev[type] + delta)
+    }));
+  };
+
+  const handleTypeChange = (type) => {
+    setModalEntries(prev => ({
+      ...prev,
+      type: prev.type === type ? null : type
     }));
   };
 
@@ -104,6 +113,7 @@ export default function App() {
           date: modalDate,
           time: new Date().toTimeString().split(' ')[0],
           type: 'Normal',
+          bristolType: modalEntries.type,
           notes: '',
           rating: 5
         });
@@ -116,6 +126,7 @@ export default function App() {
           date: modalDate,
           time: new Date().toTimeString().split(' ')[0],
           type: 'Accident',
+          bristolType: modalEntries.type,
           notes: '',
           rating: 1
         });
@@ -128,6 +139,7 @@ export default function App() {
           date: modalDate,
           time: new Date().toTimeString().split(' ')[0],
           type: 'Failed',
+          bristolType: modalEntries.type,
           notes: '',
           rating: 1
         });
@@ -492,6 +504,38 @@ export default function App() {
                   </TouchableOpacity>
                 </View>
               </View>
+
+              {/* Bristol Stool Chart Type Selection */}
+              <View style={styles.typeSelectionContainer}>
+                <View style={styles.typeHeader}>
+                  <Text style={styles.typeLabel}>Bristol Stool Type</Text>
+                  <TouchableOpacity 
+                    style={styles.infoButton}
+                    onPress={() => setShowChartModal(true)}
+                  >
+                    <Text style={styles.infoButtonText}>ℹ️</Text>
+                  </TouchableOpacity>
+                </View>
+                <View style={styles.typeButtons}>
+                  {[1, 2, 3, 4, 5, 6, 7].map((type) => (
+                    <TouchableOpacity
+                      key={type}
+                      style={[
+                        styles.typeButton,
+                        modalEntries.type === type && styles.typeButtonSelected
+                      ]}
+                      onPress={() => handleTypeChange(type)}
+                    >
+                      <Text style={[
+                        styles.typeButtonText,
+                        modalEntries.type === type && styles.typeButtonTextSelected
+                      ]}>
+                        {type}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              </View>
             </ScrollView>
             
             <View style={styles.modalFooter}>
@@ -508,6 +552,63 @@ export default function App() {
                 <Text style={styles.saveButtonText}>Save</Text>
               </TouchableOpacity>
             </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Bristol Stool Chart Modal */}
+      <Modal
+        visible={showChartModal}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setShowChartModal(false)}
+      >
+        <View style={styles.chartModalOverlay}>
+          <View style={styles.chartModalContent}>
+            <View style={styles.chartModalHeader}>
+              <Text style={styles.chartModalTitle}>Bristol Stool Chart</Text>
+              <TouchableOpacity 
+                style={styles.chartCloseButton}
+                onPress={() => setShowChartModal(false)}
+              >
+                <Text style={styles.chartCloseButtonText}>×</Text>
+              </TouchableOpacity>
+            </View>
+            <ScrollView style={styles.chartModalBody}>
+              <Text style={styles.chartDescription}>
+                The Bristol Stool Chart helps categorize stool into 7 types:
+              </Text>
+              <View style={styles.chartTypes}>
+                <View style={styles.chartType}>
+                  <Text style={styles.chartTypeNumber}>Type 1:</Text>
+                  <Text style={styles.chartTypeDesc}>Hard lumps or small pebbles</Text>
+                </View>
+                <View style={styles.chartType}>
+                  <Text style={styles.chartTypeNumber}>Type 2:</Text>
+                  <Text style={styles.chartTypeDesc}>Lumpy, hard, and sausage shaped</Text>
+                </View>
+                <View style={styles.chartType}>
+                  <Text style={styles.chartTypeNumber}>Type 3:</Text>
+                  <Text style={styles.chartTypeDesc}>Sausage shaped with cracks along the surface</Text>
+                </View>
+                <View style={styles.chartType}>
+                  <Text style={styles.chartTypeNumber}>Type 4:</Text>
+                  <Text style={styles.chartTypeDesc}>Resembles a thin sausage or snake</Text>
+                </View>
+                <View style={styles.chartType}>
+                  <Text style={styles.chartTypeNumber}>Type 5:</Text>
+                  <Text style={styles.chartTypeDesc}>Soft blobs with clear edges</Text>
+                </View>
+                <View style={styles.chartType}>
+                  <Text style={styles.chartTypeNumber}>Type 6:</Text>
+                  <Text style={styles.chartTypeDesc}>Mushy and fluffy with ragged edges</Text>
+                </View>
+                <View style={styles.chartType}>
+                  <Text style={styles.chartTypeNumber}>Type 7:</Text>
+                  <Text style={styles.chartTypeDesc}>Entirely liquid</Text>
+                </View>
+              </View>
+            </ScrollView>
           </View>
         </View>
       </Modal>
@@ -784,5 +885,130 @@ const styles = StyleSheet.create({
     fontSize: 9,
     color: '#666',
     fontWeight: '500',
+  },
+  typeSelectionContainer: {
+    marginTop: 15,
+    paddingTop: 15,
+    borderTopWidth: 1,
+    borderTopColor: '#e2e8f0',
+  },
+  typeHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 10,
+  },
+  typeLabel: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#4a5568',
+  },
+  infoButton: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    backgroundColor: '#667eea',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  infoButtonText: {
+    fontSize: 16,
+  },
+  typeButtons: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+  },
+  typeButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#f7fafc',
+    borderWidth: 1,
+    borderColor: '#e2e8f0',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  typeButtonSelected: {
+    backgroundColor: '#667eea',
+    borderColor: '#667eea',
+  },
+  typeButtonText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#4a5568',
+  },
+  typeButtonTextSelected: {
+    color: '#ffffff',
+  },
+  chartModalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  chartModalContent: {
+    backgroundColor: 'white',
+    borderRadius: 15,
+    width: '100%',
+    maxHeight: '80%',
+  },
+  chartModalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: '#e2e8f0',
+  },
+  chartModalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#4a5568',
+  },
+  chartCloseButton: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    backgroundColor: '#f7fafc',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  chartCloseButtonText: {
+    fontSize: 20,
+    color: '#666',
+  },
+  chartModalBody: {
+    padding: 20,
+  },
+  chartDescription: {
+    fontSize: 14,
+    color: '#4a5568',
+    marginBottom: 15,
+    textAlign: 'center',
+  },
+  chartTypes: {
+    gap: 10,
+  },
+  chartType: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    backgroundColor: '#f7fafc',
+    borderRadius: 8,
+  },
+  chartTypeNumber: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#667eea',
+    minWidth: 60,
+  },
+  chartTypeDesc: {
+    fontSize: 14,
+    color: '#4a5568',
+    flex: 1,
   },
 });
