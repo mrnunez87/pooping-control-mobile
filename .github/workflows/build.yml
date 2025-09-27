@@ -38,7 +38,7 @@ jobs:
         eas-cache: false
         
     - name: Install EAS CLI
-      run: npm install -g @expo/eas-cli
+      run: npm install -g eas-cli
         
     - name: Build web version
       run: npx expo export --platform web
