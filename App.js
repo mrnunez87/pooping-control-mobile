@@ -97,15 +97,23 @@ export default function App() {
   };
 
   const handleTypeChange = (type) => {
-    setModalEntries(prev => ({
-      ...prev,
-      type: prev.type === type ? null : type
-    }));
+    console.log('Bristol type changed to:', type);
+    setModalEntries(prev => {
+      const newType = prev.type === type ? null : type;
+      console.log('Previous type:', prev.type, 'New type:', newType);
+      return {
+        ...prev,
+        type: newType
+      };
+    });
   };
 
 
   const saveEmojiEntries = async () => {
     if (!modalDate) return;
+    
+    console.log('Saving entries for date:', modalDate);
+    console.log('Modal entries:', modalEntries);
     
     try {
       const newEntries = [];
@@ -170,6 +178,7 @@ export default function App() {
     let bristolType = null;
     
     dayEntries.forEach(entry => {
+      console.log('Processing entry:', entry);
       if (entry.type === 'Accident') {
         accidentCount++;
       } else if (entry.type === 'Failed') {
@@ -178,6 +187,7 @@ export default function App() {
         poopCount++;
       }
       if (entry.bristolType && entry.bristolType !== null) {
+        console.log('Found Bristol type:', entry.bristolType);
         bristolType = entry.bristolType;
       }
     });
@@ -496,6 +506,7 @@ export default function App() {
                 style={styles.infoButton}
                 onPress={() => {
                   console.log('Info button pressed');
+                  setImageLoadError(false);
                   setShowChartModal(true);
                 }}
               >
@@ -577,15 +588,18 @@ export default function App() {
               {console.log('Chart modal - imageLoadError:', imageLoadError)}
               {!imageLoadError ? (
                 <Image
-                  source={{ uri: 'https://raw.githubusercontent.com/mrnunez87/pooping-control-mobile/main/assets/chart.png' }}
+                  source={require('./assets/chart.png')}
                   style={styles.bristolChartImage}
                   resizeMode="contain"
                   onError={(error) => {
-                    console.log('Image failed to load, showing fallback text:', error);
-                    setImageLoadError(true);
+                    console.log('Local image failed to load, trying URL:', error);
+                    // Try URL as fallback
+                    setTimeout(() => {
+                      setImageLoadError(true);
+                    }, 1000);
                   }}
                   onLoad={() => {
-                    console.log('Image loaded successfully');
+                    console.log('Local image loaded successfully');
                   }}
                 />
               ) : (
