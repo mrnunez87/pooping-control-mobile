@@ -29,6 +29,7 @@ export default function App() {
   });
   const [showChartModal, setShowChartModal] = useState(false);
   const [showStatsModal, setShowStatsModal] = useState(false);
+  const [imageLoadError, setImageLoadError] = useState(false);
 
   // Load entries from AsyncStorage
   useEffect(() => {
@@ -544,16 +545,56 @@ export default function App() {
               </TouchableOpacity>
             </View>
             <ScrollView style={styles.chartModalBody} showsVerticalScrollIndicator={false}>
-              <Image
-                source={{
-                  uri: 'https://www.everydayhealth.com/images/stool-chart.png'
-                }}
-                style={styles.bristolChartImage}
-                resizeMode="contain"
-                onError={() => {
-                  console.log('Image failed to load, showing fallback text');
-                }}
-              />
+              {!imageLoadError ? (
+                <Image
+                  source={{
+                    uri: 'https://www.verywellhealth.com/thmb/4qN7mJjO1eK8JjO1eK8JjO1eK8=/1500x0/filters:no_upscale():max_bytes(1500000):strip_icc()/bristol-stool-chart-5b7b6b6c46e0fb002c8b8b8b.png'
+                  }}
+                  style={styles.bristolChartImage}
+                  resizeMode="contain"
+                  onError={() => {
+                    console.log('Image failed to load, showing fallback text');
+                    setImageLoadError(true);
+                  }}
+                />
+              ) : (
+                <View style={styles.fallbackContent}>
+                  <Text style={styles.fallbackTitle}>Bristol Stool Chart</Text>
+                  <Text style={styles.fallbackDescription}>
+                    The Bristol Stool Chart helps categorize stool into 7 types:
+                  </Text>
+                  <View style={styles.chartTypes}>
+                    <View style={styles.chartType}>
+                      <Text style={styles.chartTypeNumber}>Type 1:</Text>
+                      <Text style={styles.chartTypeDesc}>Hard lumps or small pebbles</Text>
+                    </View>
+                    <View style={styles.chartType}>
+                      <Text style={styles.chartTypeNumber}>Type 2:</Text>
+                      <Text style={styles.chartTypeDesc}>Lumpy, hard, and sausage shaped</Text>
+                    </View>
+                    <View style={styles.chartType}>
+                      <Text style={styles.chartTypeNumber}>Type 3:</Text>
+                      <Text style={styles.chartTypeDesc}>Sausage shaped with cracks along the surface</Text>
+                    </View>
+                    <View style={styles.chartType}>
+                      <Text style={styles.chartTypeNumber}>Type 4:</Text>
+                      <Text style={styles.chartTypeDesc}>Resembles a thin sausage or snake</Text>
+                    </View>
+                    <View style={styles.chartType}>
+                      <Text style={styles.chartTypeNumber}>Type 5:</Text>
+                      <Text style={styles.chartTypeDesc}>Soft blobs with clear edges</Text>
+                    </View>
+                    <View style={styles.chartType}>
+                      <Text style={styles.chartTypeNumber}>Type 6:</Text>
+                      <Text style={styles.chartTypeDesc}>Mushy and fluffy with ragged edges</Text>
+                    </View>
+                    <View style={styles.chartType}>
+                      <Text style={styles.chartTypeNumber}>Type 7:</Text>
+                      <Text style={styles.chartTypeDesc}>Entirely liquid</Text>
+                    </View>
+                  </View>
+                </View>
+              )}
             </ScrollView>
           </TouchableOpacity>
         </TouchableOpacity>
@@ -1049,5 +1090,43 @@ const styles = StyleSheet.create({
     width: '100%',
     height: 400,
     borderRadius: 10,
+  },
+  fallbackContent: {
+    padding: 10,
+  },
+  fallbackTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#4a5568',
+    textAlign: 'center',
+    marginBottom: 10,
+  },
+  fallbackDescription: {
+    fontSize: 14,
+    color: '#4a5568',
+    marginBottom: 15,
+    textAlign: 'center',
+  },
+  chartTypes: {
+    gap: 10,
+  },
+  chartType: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    backgroundColor: '#f7fafc',
+    borderRadius: 8,
+  },
+  chartTypeNumber: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#667eea',
+    minWidth: 60,
+  },
+  chartTypeDesc: {
+    fontSize: 14,
+    color: '#4a5568',
+    flex: 1,
   },
 });
