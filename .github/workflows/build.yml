@@ -32,11 +32,6 @@ jobs:
         expo-cache: false
         eas-cache: false
         
-    - name: Build iOS for TestFlight
-      run: eas build --platform ios --profile production --non-interactive
-      env:
-        EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-      
     - name: Build web version
       run: npx expo export --platform web
       
