@@ -7,7 +7,8 @@ import {
   Modal, 
   ScrollView,
   SafeAreaView,
-  Alert
+  Alert,
+  Image as RNImage
 } from 'react-native';
 import { Image } from 'expo-image';
 import { StatusBar } from 'expo-status-bar';
@@ -30,6 +31,8 @@ export default function App() {
   const [showChartModal, setShowChartModal] = useState(false);
   const [showStatsModal, setShowStatsModal] = useState(false);
   const [imageLoadError, setImageLoadError] = useState(false);
+  const [imageLoading, setImageLoading] = useState(true);
+  const [useRNImage, setUseRNImage] = useState(false);
 
   // Load entries from AsyncStorage
   useEffect(() => {
@@ -507,6 +510,8 @@ export default function App() {
                 onPress={() => {
                   console.log('Info button pressed');
                   setImageLoadError(false);
+                  setImageLoading(true);
+                  setUseRNImage(false);
                   setShowChartModal(true);
                 }}
               >
@@ -585,19 +590,49 @@ export default function App() {
               </TouchableOpacity>
             </View>
             <ScrollView style={styles.chartModalBody} showsVerticalScrollIndicator={false}>
-              {console.log('Chart modal - imageLoadError:', imageLoadError)}
-              <Image
-                source={require('./assets/chart.png')}
-                style={styles.bristolChartImage}
-                contentFit="contain"
-                transition={200}
-                onError={(error) => {
-                  console.log('expo-image failed to load:', error);
-                }}
-                onLoad={() => {
-                  console.log('expo-image loaded successfully');
-                }}
-              />
+              {console.log('Chart modal - imageLoadError:', imageLoadError, 'imageLoading:', imageLoading, 'useRNImage:', useRNImage)}
+              <View style={styles.imageContainer}>
+                {imageLoading && !imageLoadError && (
+                  <Text style={styles.imageLoadingText}>Loading chart...</Text>
+                )}
+                {!useRNImage ? (
+                  <Image
+                    source={require('./assets/chart.png')}
+                    style={styles.bristolChartImage}
+                    contentFit="contain"
+                    transition={200}
+                    cachePolicy="memory-disk"
+                    onError={(error) => {
+                      console.log('expo-image failed to load:', error);
+                      console.log('Error details:', JSON.stringify(error, null, 2));
+                      console.log('Trying React Native Image as fallback...');
+                      setUseRNImage(true);
+                      setImageLoading(true);
+                    }}
+                    onLoad={() => {
+                      console.log('expo-image loaded successfully');
+                      setImageLoadError(false);
+                      setImageLoading(false);
+                    }}
+                  />
+                ) : (
+                  <RNImage
+                    source={require('./assets/chart.png')}
+                    style={styles.bristolChartImage}
+                    resizeMode="contain"
+                    onError={(error) => {
+                      console.log('React Native Image also failed:', error);
+                      setImageLoadError(true);
+                      setImageLoading(false);
+                    }}
+                    onLoad={() => {
+                      console.log('React Native Image loaded successfully');
+                      setImageLoadError(false);
+                      setImageLoading(false);
+                    }}
+                  />
+                )}
+              </View>
               {imageLoadError && (
                 <View style={styles.fallbackContent}>
                   <Text style={styles.fallbackTitle}>Bristol Stool Chart</Text>
@@ -1145,6 +1180,7 @@ const styles = StyleSheet.create({
     height: 350,
     borderRadius: 10,
     alignSelf: 'center',
+    backgroundColor: '#f8f9fa',
   },
   imageLoadingText: {
     position: 'absolute',
