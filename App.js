@@ -595,10 +595,24 @@ export default function App() {
                 {imageLoading && !imageLoadError && (
                   <Text style={styles.imageLoadingText}>Loading chart...</Text>
                 )}
+                
+                {/* Simple test image first */}
+                <RNImage
+                  source={require('./assets/chart.png')}
+                  style={{ width: 300, height: 200, marginBottom: 10 }}
+                  resizeMode="contain"
+                  onError={(error) => {
+                    console.log('Simple RNImage failed:', error);
+                  }}
+                  onLoad={() => {
+                    console.log('Simple RNImage loaded successfully');
+                  }}
+                />
+                
                 {!useRNImage ? (
                   <Image
                     source={require('./assets/chart.png')}
-                    style={styles.bristolChartImage}
+                    style={[styles.bristolChartImage, { width: undefined, height: undefined }]}
                     contentFit="contain"
                     transition={200}
                     cachePolicy="memory-disk"
@@ -618,7 +632,7 @@ export default function App() {
                 ) : (
                   <RNImage
                     source={require('./assets/chart.png')}
-                    style={styles.bristolChartImage}
+                    style={[styles.bristolChartImage, { width: undefined, height: undefined }]}
                     resizeMode="contain"
                     onError={(error) => {
                       console.log('React Native Image also failed:', error);
