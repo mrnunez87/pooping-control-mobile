@@ -596,22 +596,24 @@ export default function App() {
                   <Text style={styles.imageLoadingText}>Loading chart...</Text>
                 )}
                 
-                {/* Simple test image first */}
+                {/* Simple test image - JPG format (60KB) */}
                 <RNImage
-                  source={require('./assets/chart.png')}
+                  source={require('./assets/chart.jpg')}
                   style={{ width: 300, height: 200, marginBottom: 10 }}
                   resizeMode="contain"
                   onError={(error) => {
-                    console.log('Simple RNImage failed:', error);
+                    console.log('JPG image failed:', error);
+                    setImageLoadError(true);
                   }}
                   onLoad={() => {
-                    console.log('Simple RNImage loaded successfully');
+                    console.log('JPG image loaded successfully! (60KB)');
+                    setImageLoadError(false);
                   }}
                 />
                 
                 {!useRNImage ? (
                   <Image
-                    source={require('./assets/chart.png')}
+                    source={require('./assets/chart.jpg')}
                     style={[styles.bristolChartImage, { width: undefined, height: undefined }]}
                     contentFit="contain"
                     transition={200}
@@ -631,7 +633,7 @@ export default function App() {
                   />
                 ) : (
                   <RNImage
-                    source={require('./assets/chart.png')}
+                    source={require('./assets/chart.jpg')}
                     style={[styles.bristolChartImage, { width: undefined, height: undefined }]}
                     resizeMode="contain"
                     onError={(error) => {
