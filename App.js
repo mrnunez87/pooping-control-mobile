@@ -596,10 +596,10 @@ export default function App() {
                   <Text style={styles.imageLoadingText}>Loading chart...</Text>
                 )}
                 
-                {/* Simple test image - JPG format (60KB) */}
+                {/* Bristol Stool Chart - JPG format (60KB) */}
                 <RNImage
                   source={require('./assets/chart.jpg')}
-                  style={{ width: 300, height: 200, marginBottom: 10 }}
+                  style={styles.fullWidthChartImage}
                   resizeMode="contain"
                   onError={(error) => {
                     console.log('JPG image failed:', error);
@@ -611,43 +611,6 @@ export default function App() {
                   }}
                 />
                 
-                {!useRNImage ? (
-                  <Image
-                    source={require('./assets/chart.jpg')}
-                    style={[styles.bristolChartImage, { width: undefined, height: undefined }]}
-                    contentFit="contain"
-                    transition={200}
-                    cachePolicy="memory-disk"
-                    onError={(error) => {
-                      console.log('expo-image failed to load:', error);
-                      console.log('Error details:', JSON.stringify(error, null, 2));
-                      console.log('Trying React Native Image as fallback...');
-                      setUseRNImage(true);
-                      setImageLoading(true);
-                    }}
-                    onLoad={() => {
-                      console.log('expo-image loaded successfully');
-                      setImageLoadError(false);
-                      setImageLoading(false);
-                    }}
-                  />
-                ) : (
-                  <RNImage
-                    source={require('./assets/chart.jpg')}
-                    style={[styles.bristolChartImage, { width: undefined, height: undefined }]}
-                    resizeMode="contain"
-                    onError={(error) => {
-                      console.log('React Native Image also failed:', error);
-                      setImageLoadError(true);
-                      setImageLoading(false);
-                    }}
-                    onLoad={() => {
-                      console.log('React Native Image loaded successfully');
-                      setImageLoadError(false);
-                      setImageLoading(false);
-                    }}
-                  />
-                )}
               </View>
               {imageLoadError && (
                 <View style={styles.fallbackContent}>
@@ -1153,9 +1116,10 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     borderRadius: 15,
     width: '95%',
-    maxHeight: '85%',
+    maxHeight: '90%',
     maxWidth: '95%',
     alignSelf: 'center',
+    position: 'relative',
   },
   chartModalHeader: {
     flexDirection: 'row',
@@ -1171,16 +1135,22 @@ const styles = StyleSheet.create({
     color: '#4a5568',
   },
   chartCloseButton: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-    backgroundColor: '#f7fafc',
+    width: 35,
+    height: 35,
+    borderRadius: 17.5,
+    backgroundColor: '#e2e8f0',
     justifyContent: 'center',
     alignItems: 'center',
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
   },
   chartCloseButtonText: {
-    fontSize: 20,
-    color: '#666',
+    fontSize: 22,
+    color: '#4a5568',
+    fontWeight: 'bold',
   },
   chartModalBody: {
     padding: 10,
@@ -1196,6 +1166,14 @@ const styles = StyleSheet.create({
     height: 350,
     borderRadius: 10,
     alignSelf: 'center',
+    backgroundColor: '#f8f9fa',
+  },
+  fullWidthChartImage: {
+    width: '100%',
+    height: 400,
+    borderRadius: 10,
+    marginHorizontal: 10,
+    marginVertical: 10,
     backgroundColor: '#f8f9fa',
   },
   imageLoadingText: {
