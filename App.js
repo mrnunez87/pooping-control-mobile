@@ -8,7 +8,8 @@ import {
   ScrollView,
   SafeAreaView,
   Alert,
-  Image as RNImage
+  Image as RNImage,
+  Linking
 } from 'react-native';
 import { Image } from 'expo-image';
 import { StatusBar } from 'expo-status-bar';
@@ -109,6 +110,21 @@ export default function App() {
         type: newType
       };
     });
+  };
+
+  const openBristolChartLink = async () => {
+    const url = 'https://img.lb.wbmdstatic.com/vim/live/webmd/consumer_assets/site_images/article_thumbnails/BigBead/what_kind_of_poop_do_i_have_bigbead/650x1150_what_kind_of_poop_do_i_have_bigbead.jpg';
+    try {
+      const supported = await Linking.canOpenURL(url);
+      if (supported) {
+        await Linking.openURL(url);
+      } else {
+        Alert.alert('Error', 'Cannot open this link');
+      }
+    } catch (error) {
+      console.error('Error opening link:', error);
+      Alert.alert('Error', 'Failed to open Bristol Stool Chart link');
+    }
   };
 
 
@@ -591,6 +607,20 @@ export default function App() {
             </View>
             <ScrollView style={styles.chartModalBody} showsVerticalScrollIndicator={false}>
               {console.log('Chart modal - imageLoadError:', imageLoadError, 'imageLoading:', imageLoading, 'useRNImage:', useRNImage)}
+              
+              {/* Link to online Bristol Stool Chart */}
+              <TouchableOpacity 
+                style={styles.chartLinkButton}
+                onPress={openBristolChartLink}
+              >
+                <Text style={styles.chartLinkText}>
+                  📊 View Bristol Stool Chart (WebMD)
+                </Text>
+                <Text style={styles.chartLinkSubtext}>
+                  Tap to open full chart in browser
+                </Text>
+              </TouchableOpacity>
+              
               <View style={styles.imageContainer}>
                 {imageLoading && !imageLoadError && (
                   <Text style={styles.imageLoadingText}>Loading chart...</Text>
@@ -1154,6 +1184,28 @@ const styles = StyleSheet.create({
   },
   chartModalBody: {
     padding: 10,
+  },
+  chartLinkButton: {
+    backgroundColor: '#667eea',
+    padding: 15,
+    borderRadius: 10,
+    marginBottom: 15,
+    alignItems: 'center',
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+  },
+  chartLinkText: {
+    color: '#ffffff',
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 5,
+  },
+  chartLinkSubtext: {
+    color: '#e6f0ff',
+    fontSize: 12,
   },
   imageContainer: {
     width: '100%',
