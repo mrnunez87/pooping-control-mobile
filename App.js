@@ -626,17 +626,17 @@ export default function App() {
                   <Text style={styles.imageLoadingText}>Loading chart...</Text>
                 )}
                 
-                {/* Bristol Stool Chart - JPG format (60KB) */}
+                {/* Bristol Stool Chart - PNG format */}
                 <RNImage
-                  source={require('./assets/chart.jpg')}
+                  source={require('./assets/chart.png')}
                   style={styles.fullWidthChartImage}
                   resizeMode="contain"
                   onError={(error) => {
-                    console.log('JPG image failed:', error);
+                    console.log('Chart image failed:', error);
                     setImageLoadError(true);
                   }}
                   onLoad={() => {
-                    console.log('JPG image loaded successfully! (60KB)');
+                    console.log('Chart image loaded successfully!');
                     setImageLoadError(false);
                   }}
                 />
