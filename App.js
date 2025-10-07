@@ -8,10 +8,8 @@ import {
   ScrollView,
   SafeAreaView,
   Alert,
-  Image as RNImage,
   Linking
 } from 'react-native';
-import { Image } from 'expo-image';
 import { StatusBar } from 'expo-status-bar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Calendar } from 'react-native-calendars';
@@ -31,9 +29,6 @@ export default function App() {
   });
   const [showChartModal, setShowChartModal] = useState(false);
   const [showStatsModal, setShowStatsModal] = useState(false);
-  const [imageLoadError, setImageLoadError] = useState(false);
-  const [imageLoading, setImageLoading] = useState(true);
-  const [useRNImage, setUseRNImage] = useState(false);
 
   // Load entries from AsyncStorage
   useEffect(() => {
@@ -525,9 +520,6 @@ export default function App() {
                 style={styles.infoButton}
                 onPress={() => {
                   console.log('Info button pressed');
-                  setImageLoadError(false);
-                  setImageLoading(true);
-                  setUseRNImage(false);
                   setShowChartModal(true);
                 }}
               >
@@ -606,8 +598,6 @@ export default function App() {
               </TouchableOpacity>
             </View>
             <ScrollView style={styles.chartModalBody} showsVerticalScrollIndicator={false}>
-              {console.log('Chart modal - imageLoadError:', imageLoadError, 'imageLoading:', imageLoading, 'useRNImage:', useRNImage)}
-              
               {/* Link to online Bristol Stool Chart */}
               <TouchableOpacity 
                 style={styles.chartLinkButton}
@@ -621,65 +611,43 @@ export default function App() {
                 </Text>
               </TouchableOpacity>
               
-              <View style={styles.imageContainer}>
-                {imageLoading && !imageLoadError && (
-                  <Text style={styles.imageLoadingText}>Loading chart...</Text>
-                )}
-                
-                {/* Bristol Stool Chart - PNG format */}
-                <RNImage
-                  source={require('./assets/chart.png')}
-                  style={styles.fullWidthChartImage}
-                  resizeMode="contain"
-                  onError={(error) => {
-                    console.log('Chart image failed:', error);
-                    setImageLoadError(true);
-                  }}
-                  onLoad={() => {
-                    console.log('Chart image loaded successfully!');
-                    setImageLoadError(false);
-                  }}
-                />
-                
-              </View>
-              {imageLoadError && (
-                <View style={styles.fallbackContent}>
-                  <Text style={styles.fallbackTitle}>Bristol Stool Chart</Text>
-                  <Text style={styles.fallbackDescription}>
-                    The Bristol Stool Chart helps categorize stool into 7 types:
-                  </Text>
-                  <View style={styles.chartTypes}>
-                    <View style={styles.chartType}>
-                      <Text style={styles.chartTypeNumber}>Type 1:</Text>
-                      <Text style={styles.chartTypeDesc}>Hard lumps or small pebbles</Text>
-                    </View>
-                    <View style={styles.chartType}>
-                      <Text style={styles.chartTypeNumber}>Type 2:</Text>
-                      <Text style={styles.chartTypeDesc}>Lumpy, hard, and sausage shaped</Text>
-                    </View>
-                    <View style={styles.chartType}>
-                      <Text style={styles.chartTypeNumber}>Type 3:</Text>
-                      <Text style={styles.chartTypeDesc}>Sausage shaped with cracks along the surface</Text>
-                    </View>
-                    <View style={styles.chartType}>
-                      <Text style={styles.chartTypeNumber}>Type 4:</Text>
-                      <Text style={styles.chartTypeDesc}>Resembles a thin sausage or snake</Text>
-                    </View>
-                    <View style={styles.chartType}>
-                      <Text style={styles.chartTypeNumber}>Type 5:</Text>
-                      <Text style={styles.chartTypeDesc}>Soft blobs with clear edges</Text>
-                    </View>
-                    <View style={styles.chartType}>
-                      <Text style={styles.chartTypeNumber}>Type 6:</Text>
-                      <Text style={styles.chartTypeDesc}>Mushy and fluffy with ragged edges</Text>
-                    </View>
-                    <View style={styles.chartType}>
-                      <Text style={styles.chartTypeNumber}>Type 7:</Text>
-                      <Text style={styles.chartTypeDesc}>Entirely liquid</Text>
-                    </View>
+              {/* Text-based Bristol Stool Chart */}
+              <View style={styles.fallbackContent}>
+                <Text style={styles.fallbackTitle}>Bristol Stool Chart Types</Text>
+                <Text style={styles.fallbackDescription}>
+                  The Bristol Stool Chart helps categorize stool into 7 types:
+                </Text>
+                <View style={styles.chartTypes}>
+                  <View style={styles.chartType}>
+                    <Text style={styles.chartTypeNumber}>Type 1:</Text>
+                    <Text style={styles.chartTypeDesc}>Hard lumps or small pebbles</Text>
+                  </View>
+                  <View style={styles.chartType}>
+                    <Text style={styles.chartTypeNumber}>Type 2:</Text>
+                    <Text style={styles.chartTypeDesc}>Lumpy, hard, and sausage shaped</Text>
+                  </View>
+                  <View style={styles.chartType}>
+                    <Text style={styles.chartTypeNumber}>Type 3:</Text>
+                    <Text style={styles.chartTypeDesc}>Sausage shaped with cracks along the surface</Text>
+                  </View>
+                  <View style={styles.chartType}>
+                    <Text style={styles.chartTypeNumber}>Type 4:</Text>
+                    <Text style={styles.chartTypeDesc}>Resembles a thin sausage or snake (IDEAL)</Text>
+                  </View>
+                  <View style={styles.chartType}>
+                    <Text style={styles.chartTypeNumber}>Type 5:</Text>
+                    <Text style={styles.chartTypeDesc}>Soft blobs with clear edges</Text>
+                  </View>
+                  <View style={styles.chartType}>
+                    <Text style={styles.chartTypeNumber}>Type 6:</Text>
+                    <Text style={styles.chartTypeDesc}>Mushy and fluffy with ragged edges</Text>
+                  </View>
+                  <View style={styles.chartType}>
+                    <Text style={styles.chartTypeNumber}>Type 7:</Text>
+                    <Text style={styles.chartTypeDesc}>Entirely liquid</Text>
                   </View>
                 </View>
-              )}
+              </View>
             </ScrollView>
           </TouchableOpacity>
         </TouchableOpacity>
