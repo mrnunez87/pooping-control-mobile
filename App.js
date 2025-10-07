@@ -567,27 +567,14 @@ export default function App() {
       </Modal>
 
       {/* Bristol Stool Chart Modal */}
-      {console.log('Rendering chart modal - showChartModal:', showChartModal)}
       <Modal
         visible={showChartModal}
         transparent={true}
-        animationType="fade"
-        onRequestClose={() => {
-          console.log('Modal onRequestClose called');
-          setShowChartModal(false);
-        }}
-        statusBarTranslucent={true}
+        animationType="slide"
+        onRequestClose={() => setShowChartModal(false)}
       >
-        <TouchableOpacity 
-          style={styles.chartModalOverlay}
-          activeOpacity={1}
-          onPress={() => setShowChartModal(false)}
-        >
-          <TouchableOpacity 
-            style={styles.chartModalContent}
-            activeOpacity={1}
-            onPress={() => {}}
-          >
+        <View style={styles.chartModalOverlay}>
+          <View style={styles.chartModalContent}>
             <View style={styles.chartModalHeader}>
               <Text style={styles.chartModalTitle}>Bristol Stool Chart</Text>
               <TouchableOpacity 
@@ -597,6 +584,7 @@ export default function App() {
                 <Text style={styles.chartCloseButtonText}>×</Text>
               </TouchableOpacity>
             </View>
+            
             <ScrollView style={styles.chartModalBody} showsVerticalScrollIndicator={false}>
               {/* Link to online Bristol Stool Chart */}
               <TouchableOpacity 
@@ -649,8 +637,8 @@ export default function App() {
                 </View>
               </View>
             </ScrollView>
-          </TouchableOpacity>
-        </TouchableOpacity>
+          </View>
+        </View>
       </Modal>
 
       {/* Statistics Modal */}
@@ -1105,19 +1093,15 @@ const styles = StyleSheet.create({
   },
   chartModalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.7)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'flex-end',
   },
   chartModalContent: {
     backgroundColor: 'white',
-    borderRadius: 15,
-    width: '95%',
-    maxHeight: '90%',
-    maxWidth: '95%',
-    alignSelf: 'center',
-    position: 'relative',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    maxHeight: '80%',
+    width: '100%',
   },
   chartModalHeader: {
     flexDirection: 'row',
