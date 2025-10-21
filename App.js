@@ -13,6 +13,8 @@ import {
 import { StatusBar } from 'expo-status-bar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Calendar } from 'react-native-calendars';
+import * as Print from 'expo-print';
+import { shareAsync } from 'expo-sharing';
 
 const STORAGE_KEY = 'pooping_entries';
 
@@ -119,6 +121,215 @@ export default function App() {
     } catch (error) {
       console.error('Error opening link:', error);
       Alert.alert('Error', 'Failed to open Bristol Stool Chart link');
+    }
+  };
+
+  const generatePDFReport = async () => {
+    try {
+      // Get all entries
+      const allDates = Object.keys(entries).sort();
+      
+      if (allDates.length === 0) {
+        Alert.alert('No Data', 'No entries to export. Start tracking your habits first!');
+        return;
+      }
+
+      // Calculate statistics
+      const stats = getStatistics();
+      
+      // Group entries by month
+      const monthlyData = {};
+      allDates.forEach(dateStr => {
+        const date = new Date(dateStr);
+        const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+        const monthName = date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+        
+        if (!monthlyData[monthKey]) {
+          monthlyData[monthKey] = {
+            name: monthName,
+            dates: []
+          };
+        }
+        
+        const dayEntries = entries[dateStr] || [];
+        const { poopCount, accidentCount, failedCount, bristolType } = getDateIndicators(dateStr);
+        
+        monthlyData[monthKey].dates.push({
+          date: dateStr,
+          displayDate: new Date(dateStr).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }),
+          successful: poopCount,
+          accidents: accidentCount,
+          failed: failedCount,
+          bristolType: bristolType,
+          entries: dayEntries
+        });
+      });
+
+      // Generate HTML for PDF
+      const html = `
+        <html>
+          <head>
+            <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no" />
+            <style>
+              body {
+                font-family: 'Helvetica', 'Arial', sans-serif;
+                padding: 20px;
+                color: #333;
+              }
+              h1 {
+                color: #667eea;
+                text-align: center;
+                margin-bottom: 10px;
+              }
+              .subtitle {
+                text-align: center;
+                color: #666;
+                margin-bottom: 30px;
+              }
+              .stats-section {
+                background: #f7fafc;
+                padding: 15px;
+                border-radius: 10px;
+                margin-bottom: 30px;
+              }
+              .stats-grid {
+                display: flex;
+                justify-content: space-around;
+                margin-top: 15px;
+              }
+              .stat-card {
+                text-align: center;
+              }
+              .stat-value {
+                font-size: 24px;
+                font-weight: bold;
+                color: #4a5568;
+              }
+              .stat-label {
+                font-size: 12px;
+                color: #666;
+                margin-top: 5px;
+              }
+              .month-section {
+                margin-bottom: 30px;
+                page-break-inside: avoid;
+              }
+              .month-title {
+                color: #4a5568;
+                font-size: 18px;
+                font-weight: bold;
+                margin-bottom: 15px;
+                padding-bottom: 10px;
+                border-bottom: 2px solid #667eea;
+              }
+              .day-entry {
+                padding: 10px;
+                margin-bottom: 10px;
+                background: #ffffff;
+                border-left: 4px solid #667eea;
+                border-radius: 5px;
+              }
+              .day-header {
+                font-weight: bold;
+                color: #4a5568;
+                margin-bottom: 5px;
+              }
+              .day-data {
+                display: flex;
+                justify-content: space-between;
+                font-size: 12px;
+                color: #666;
+              }
+              .success { color: #48bb78; }
+              .accident { color: #8B4513; }
+              .failed { color: #e53e3e; }
+              .bristol { color: #8b5cf6; }
+              .footer {
+                margin-top: 30px;
+                text-align: center;
+                font-size: 10px;
+                color: #999;
+              }
+            </style>
+          </head>
+          <body>
+            <h1>💩 Pooping Control Report</h1>
+            <p class="subtitle">Generated on ${new Date().toLocaleDateString('en-US', { 
+              weekday: 'long', 
+              year: 'numeric', 
+              month: 'long', 
+              day: 'numeric' 
+            })}</p>
+            
+            <div class="stats-section">
+              <h2 style="margin-top: 0;">Overall Statistics</h2>
+              <div class="stats-grid">
+                <div class="stat-card">
+                  <div class="stat-value success">${stats.totalSuccessful}</div>
+                  <div class="stat-label">Successful Poops</div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-value accident">${stats.totalAccidents}</div>
+                  <div class="stat-label">Accidents</div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-value failed">${stats.totalFailed}</div>
+                  <div class="stat-label">Failed Attempts</div>
+                </div>
+              </div>
+              <div class="stats-grid" style="margin-top: 20px;">
+                <div class="stat-card">
+                  <div class="stat-value">${stats.totalDays}</div>
+                  <div class="stat-label">Days Logged</div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-value">${stats.avgSuccessfulPerDay}</div>
+                  <div class="stat-label">Avg Successful/Day</div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-value">${stats.successfulPercentage}%</div>
+                  <div class="stat-label">Success Rate</div>
+                </div>
+              </div>
+            </div>
+            
+            ${Object.keys(monthlyData).sort().reverse().map(monthKey => {
+              const month = monthlyData[monthKey];
+              return `
+                <div class="month-section">
+                  <div class="month-title">${month.name}</div>
+                  ${month.dates.map(day => `
+                    <div class="day-entry">
+                      <div class="day-header">${day.displayDate}</div>
+                      <div class="day-data">
+                        ${day.successful > 0 ? `<span class="success">✓ ${day.successful} Successful</span>` : ''}
+                        ${day.accidents > 0 ? `<span class="accident">💩 ${day.accidents} Accidents</span>` : ''}
+                        ${day.failed > 0 ? `<span class="failed">✗ ${day.failed} Failed</span>` : ''}
+                        ${day.bristolType ? `<span class="bristol">Type ${day.bristolType}</span>` : ''}
+                      </div>
+                    </div>
+                  `).join('')}
+                </div>
+              `;
+            }).join('')}
+            
+            <div class="footer">
+              <p>Pooping Control App • Track your daily habits</p>
+            </div>
+          </body>
+        </html>
+      `;
+
+      // Generate PDF
+      const { uri } = await Print.printToFileAsync({ html });
+      console.log('PDF generated at:', uri);
+      
+      // Share/Save the PDF
+      await shareAsync(uri, { UTI: '.pdf', mimeType: 'application/pdf' });
+      
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      Alert.alert('Error', 'Failed to generate PDF report');
     }
   };
 
@@ -345,12 +556,20 @@ export default function App() {
               <Text style={styles.legendText}>Failed attempts</Text>
             </View>
           </View>
-          <TouchableOpacity 
-            style={styles.statsButton}
-            onPress={() => setShowStatsModal(true)}
-          >
-            <Text style={styles.statsButtonText}>📊</Text>
-          </TouchableOpacity>
+          <View style={styles.headerButtons}>
+            <TouchableOpacity 
+              style={styles.statsButton}
+              onPress={() => setShowStatsModal(true)}
+            >
+              <Text style={styles.statsButtonText}>📊</Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={styles.pdfButton}
+              onPress={generatePDFReport}
+            >
+              <Text style={styles.pdfButtonText}>📄</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
 
@@ -929,6 +1148,10 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
   },
+  headerButtons: {
+    flexDirection: 'row',
+    gap: 10,
+  },
   statsButton: {
     width: 50,
     height: 50,
@@ -941,9 +1164,25 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.2,
     shadowRadius: 2,
-    marginLeft: 10,
   },
   statsButtonText: {
+    fontSize: 20,
+    color: '#ffffff',
+  },
+  pdfButton: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: '#48bb78',
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+  },
+  pdfButtonText: {
     fontSize: 20,
     color: '#ffffff',
   },
